@@ -84,7 +84,7 @@ class DashboardView extends ConsumerWidget {
                       error: (error, stack) => Center(
                         child: Text('Erreur: $error'),
                       ),
-                    ),
+                    ), 
                   ],
                 ),
               ),
