@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/workout_provider.dart';
+import '../widgets/AppBarTemplate.dart';
 import '../widgets/chart_widget.dart';
 import '../widgets/workout_card.dart';
+import '../views/list_view.dart';
 
 /// Dashboard dynamique avec statistiques et workouts récents
 class HomeView extends ConsumerWidget {
@@ -14,9 +16,7 @@ class HomeView extends ConsumerWidget {
     final statsAsync = ref.watch(workoutStatsProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Fitness Log'),
-      ),
+      appBar: AppBartemplate(title: 'Fitness Log',),
       body: RefreshIndicator(
         onRefresh: () async {
           ref.invalidate(workoutListProvider);
@@ -35,7 +35,7 @@ class HomeView extends ConsumerWidget {
                   children: [
                     Text(
                       'Statistiques',
-                      style: Theme.of(context).textTheme.headlineMedium,
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 16),
                     statsAsync.when(
@@ -46,9 +46,8 @@ class HomeView extends ConsumerWidget {
                           child: CircularProgressIndicator(),
                         ),
                       ),
-                      error: (error, stack) => Center(
-                        child: Text('Erreur: $error'),
-                      ),
+                      error: (error, stack) =>
+                          Center(child: Text('Erreur: $error')),
                     ),
                   ],
                 ),
@@ -57,27 +56,27 @@ class HomeView extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+
                     Text(
+                      textAlign: TextAlign.center,
                       'Progression Hebdomadaire',
-                      style: Theme.of(context).textTheme.headlineMedium,
+                      style:  Theme.of(context).textTheme.titleMedium,
+
                     ),
                     const SizedBox(height: 16),
                     workoutsAsync.when(
-                      data: (workouts) => ChartWidget(
-                        workouts: workouts,
-                        metric: 'calories',
-                      ),
+                      data: (workouts) =>
+                          ChartWidget(workouts: workouts, metric: 'calories'),
                       loading: () => const Center(
                         child: Padding(
                           padding: EdgeInsets.all(32.0),
                           child: CircularProgressIndicator(),
                         ),
                       ),
-                      error: (error, stack) => Center(
-                        child: Text('Erreur: $error'),
-                      ),
+                      error: (error, stack) =>
+                          Center(child: Text('Erreur: $error')),
                     ),
                   ],
                 ),
@@ -93,12 +92,19 @@ class HomeView extends ConsumerWidget {
                       children: [
                         Text(
                           'Séances Récentes',
-                          style: Theme.of(context).textTheme.headlineMedium,
+                          style:  Theme.of(context).textTheme.titleMedium,
                         ),
                         TextButton(
-                          onPressed: () {
-                            // Navigation vers la liste complète
-                          },
+                          onPressed: () =>
+                              (
+                              // Navigation vers la liste complète
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      WorkoutListView(),
+                                ),
+                              )),
                           child: const Text('Voir tout'),
                         ),
                       ],
@@ -106,7 +112,7 @@ class HomeView extends ConsumerWidget {
                     const SizedBox(height: 16),
                     workoutsAsync.when(
                       data: (workouts) {
-                        final recentWorkouts = workouts.take(5).toList();
+                        final recentWorkouts = workouts.take(2).toList();
                         if (recentWorkouts.isEmpty) {
                           return const Center(
                             child: Padding(
@@ -127,9 +133,8 @@ class HomeView extends ConsumerWidget {
                           child: CircularProgressIndicator(),
                         ),
                       ),
-                      error: (error, stack) => Center(
-                        child: Text('Erreur: $error'),
-                      ),
+                      error: (error, stack) =>
+                          Center(child: Text('Erreur: $error')),
                     ),
                   ],
                 ),
@@ -167,7 +172,7 @@ class HomeView extends ConsumerWidget {
             context,
             'Séances',
             '${stats.nombreSeances}',
-            Icons.fitness_center,
+            Icons.fitness_center_sharp,
           ),
         ),
       ],
@@ -189,9 +194,9 @@ class HomeView extends ConsumerWidget {
             const SizedBox(height: 8),
             Text(
               value,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
             Text(
@@ -205,4 +210,3 @@ class HomeView extends ConsumerWidget {
     );
   }
 }
-

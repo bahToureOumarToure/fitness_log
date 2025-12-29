@@ -1,7 +1,9 @@
+import 'package:fitness_log/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
 import 'views/home_view.dart';
+import 'views/dashboard_view.dart';
 import 'views/list_view.dart' show WorkoutListView;
 import 'views/add_workout_view.dart';
 import 'models/workout.dart';
@@ -14,16 +16,17 @@ void main() {
   );
 }
 
-class FitnessLogApp extends StatelessWidget {
+class FitnessLogApp extends ConsumerWidget  {
   const FitnessLogApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeProvider);
     return MaterialApp(
       title: 'Fitness Log',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: themeMode,
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
@@ -32,6 +35,7 @@ class FitnessLogApp extends StatelessWidget {
           final workout = ModalRoute.of(context)?.settings.arguments as Workout?;
           return AddWorkoutView(workout: workout);
         },
+        '/dashboard': (context) => const DashboardView(),
       },
     );
   }
@@ -48,13 +52,15 @@ class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
 
   final List<Widget> _views = [
-    const HomeView(),
+    const DashboardView(),
     WorkoutListView(),
+    const HomeView(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
       body: _views[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -72,6 +78,10 @@ class _MainNavigationState extends State<MainNavigation> {
             icon: Icon(Icons.list),
             label: 'Liste',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Accueil',
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -79,6 +89,33 @@ class _MainNavigationState extends State<MainNavigation> {
           Navigator.pushNamed(context, '/add-workout');
         },
         child: const Icon(Icons.add),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                'Fitness Log',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.dashboard),
+              title: const Text('Dashboard'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/dashboard');
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

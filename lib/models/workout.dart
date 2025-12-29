@@ -41,7 +41,7 @@ class Workout {
     );
   }
 
-  /// Crée une copie du Workout avec des valeurs modifiées
+  /// Crée une copie du Workout avec des valeurs modifiées. Remarque cette partie est tres important
   Workout copyWith({
     int? id,
     String? typeSport,

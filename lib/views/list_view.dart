@@ -4,6 +4,7 @@ import '../providers/workout_provider.dart';
 import '../widgets/workout_card.dart';
 import '../core/constants/app_constants.dart';
 import '../models/workout.dart';
+import '../core/constants/app_constants.dart';
 
 /// Liste des séances (obligatoire selon cahier des charges)
 class WorkoutListView extends ConsumerStatefulWidget {
@@ -23,12 +24,14 @@ class _WorkoutListViewState extends ConsumerState<WorkoutListView> {
 
     return Scaffold(
       appBar: AppBar(
+
         title: const Text('Liste des Séances'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.filter_list),
+            icon: const Icon(Icons.filter_list_alt,),
             onPressed: _showFilterDialog,
           ),
+
         ],
       ),
       body: workoutsAsync.when(
@@ -111,7 +114,12 @@ class _WorkoutListViewState extends ConsumerState<WorkoutListView> {
                 ...AppConstants.sportTypes.map(
                   (type) => DropdownMenuItem<String>(
                     value: type,
-                    child: Text(type),
+                    child: Row(
+                      children: [Text(type,)
+               //       Icon(AppConstants.sportTypes as IconData?)],
+      ]
+
+                    ),
                   ),
                 ),
               ],

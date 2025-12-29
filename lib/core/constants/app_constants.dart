@@ -1,3 +1,6 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
 /// Constantes de l'application
 class AppConstants {
   // Types de sport disponibles
@@ -8,6 +11,16 @@ class AppConstants {
     'Course',
     'Yoga',
   ];
+
+  static const Map<String, IconData> sportIcons = {
+    'Course' : Icons.directions_run,
+    'Musculation': Icons.fitness_center,
+    'Marche': Icons.directions_walk,
+    'Yoga': Icons.self_improvement,
+    'Cardio': Icons.heart_broken_rounded
+  };
+
+
 
   // Durées par défaut (en minutes)
   static const int defaultDuration = 30;

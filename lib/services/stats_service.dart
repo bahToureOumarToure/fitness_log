@@ -155,5 +155,44 @@ class StatsService {
 
     return progress;
   }
-}
+  
+  /// Récupère la progression hebdomadaire des calories
+  Future<Map<String, double>> getWeeklyCaloriesProgress() async {
+    final stats = await calculateWeeklyStats(DateTime.now());
+    
+    // Objectif de calories hebdomadaire (peut être configurable)
+    const double targetCalories = 3500; 
+    
+    return {
+      'current': stats.totalCalories.toDouble(),
+      'target': targetCalories,
+    };
+  }
 
+  /// Calcule les statistiques par jour pour une semaine
+  Future<Map<DateTime, Map<String, int>>> getDailyStatsForWeek(
+      DateTime weekDate) async {
+    final workouts = await _sqliteService.getWorkoutsByWeek(weekDate);
+    final dailyStats = <DateTime, Map<String, int>>{};
+
+    for (final workout in workouts) {
+      final day = DateTime(
+        workout.date.year,
+        workout.date.month,
+        workout.date.day,
+      );
+
+      if (!dailyStats.containsKey(day)) {
+        dailyStats[day] = {'calories': 0, 'duration': 0, 'count': 0};
+      }
+
+      dailyStats[day]!['calories'] =
+          (dailyStats[day]!['calories'] ?? 0) + workout.caloriesBrulees;
+      dailyStats[day]!['duration'] =
+          (dailyStats[day]!['duration'] ?? 0) + workout.duree;
+      dailyStats[day]!['count'] = (dailyStats[day]!['count'] ?? 0) + 1;
+    }
+
+    return dailyStats;
+  }
+}
