@@ -1,3 +1,6 @@
+
+
+import 'package:fitness_log/core/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 import '../models/workout.dart';
 import '../core/theme/app_colors.dart';
@@ -21,33 +24,32 @@ class WorkoutCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sportColor = AppColors.getSportColor(workout.typeSport);
+    final  icon = AppConstants.sportIcons[workout.typeSport];
+
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      color: Theme.of(context).colorScheme.onPrimary,
+
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(10),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // En-tête avec type de sport et date
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Row(
                   children: [
-                    Container(
-                      width: 12,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        color: sportColor,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
+                 Icon(icon
+                 ,color: sportColor,size: 60,)
+                    ,
                     Text(
                       workout.typeSport,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
+                        color: sportColor
                           ),
                     ),
                   ],
@@ -66,12 +68,15 @@ class WorkoutCard extends StatelessWidget {
                 _buildInfoItem(
                   context,
                   Icons.timer_outlined,
-                  '${workout.duree} min',
-                ),
+                  '${workout.duree} min',sportColor
+                )
+
+                ,
                 _buildInfoItem(
                   context,
-                  Icons.local_fire_department_outlined,
-                  '${workout.caloriesBrulees} kcal',
+                Icons.local_fire_department_outlined,
+                  '${workout.caloriesBrulees} kcal', sportColor
+
                 ),
               ],
             ),
@@ -85,7 +90,7 @@ class WorkoutCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Icon(
                       Icons.note_outlined,
@@ -106,28 +111,30 @@ class WorkoutCard extends StatelessWidget {
             // Actions
             const SizedBox(height: 12),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
+
                 if (onDuplicate != null)
-                  TextButton.icon(
+                  ElevatedButton.icon(
                     onPressed: onDuplicate,
-                    icon: const Icon(Icons.copy, size: 18),
-                    label: const Text('Dupliquer'),
+                    icon: const Icon(Icons.copy_rounded, size: 16), label: Text(""),
                   ),
                 if (onEdit != null)
-                  TextButton.icon(
+                 ElevatedButton.icon(
                     onPressed: onEdit,
-                    icon: const Icon(Icons.edit, size: 18),
-                    label: const Text('Modifier'),
+                    icon: const Icon(Icons.edit, size: 16),
+                    label: const Text(''),
                   ),
                 if (onDelete != null)
-                  TextButton.icon(
-                    onPressed: onDelete,
-                    icon: const Icon(Icons.delete, size: 18),
-                    label: const Text('Supprimer'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppColors.error,
+                 ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
                     ),
+                    onPressed: onDelete,
+                    icon: const Icon(Icons.delete, size: 20,),
+                    label: const Text(''),
+
+
                   ),
               ],
             ),
@@ -137,10 +144,10 @@ class WorkoutCard extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoItem(BuildContext context, IconData icon, String text) {
+  Widget _buildInfoItem(BuildContext context, IconData icon, String text, Color col) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
+        Icon(icon, size: 20, color: col),
         const SizedBox(width: 4),
         Text(
           text,

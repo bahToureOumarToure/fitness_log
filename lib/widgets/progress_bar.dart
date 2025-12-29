@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 
-/// Barre de progression générique (current/target)
 class ProgressBar extends StatelessWidget {
   final double current;
   final double target;
   final String? label;
-  final Color? color;
   final String? unit;
 
   const ProgressBar({
@@ -13,15 +11,28 @@ class ProgressBar extends StatelessWidget {
     required this.current,
     required this.target,
     this.label,
-    this.color,
     this.unit,
   });
 
+  // Logique de couleur selon vos règles : <70% Vert, 70-100% Orange, >100% Rouge
+  Color _getStatusColor(double percentageValue) {
+    if (percentageValue < 70) return Colors.green;
+    if (percentageValue <= 100) return Colors.orange;
+    return Colors.red;
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Calcul du ratio pour la barre (bridé entre 0 et 1 pour l'affichage)
     final progress = target > 0 ? (current / target).clamp(0.0, 1.0) : 0.0;
-    final progressColor = color ?? Theme.of(context).colorScheme.primary;
-    final percentage = (progress * 100).toStringAsFixed(0);
+
+    // Calcul du pourcentage réel (peut dépasser 100 pour la couleur)
+    final realPercentage = target > 0 ? (current / target) * 100 : 0.0;
+
+    // Application de la couleur dynamique
+    final dynamicColor = _getStatusColor(realPercentage);
+
+    final percentageLabel = realPercentage.toStringAsFixed(0);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,12 +44,16 @@ class ProgressBar extends StatelessWidget {
               Text(
                 label!,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
+                  fontWeight: FontWeight.w600,
+                  color: dynamicColor, // Le label prend aussi la couleur
+                ),
               ),
               Text(
-                '$current${unit ?? ''} / $target${unit ?? ''} ($percentage%)',
-                style: Theme.of(context).textTheme.bodySmall,
+                '${current.toStringAsFixed(1)}${unit ?? ''} / $target${unit ?? ''} ($percentageLabel%)',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: dynamicColor,
+                ),
               ),
             ],
           ),
@@ -48,13 +63,12 @@ class ProgressBar extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           child: LinearProgressIndicator(
             value: progress,
-            minHeight: 8,
-            backgroundColor: Theme.of(context).colorScheme.surface,
-            valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+            minHeight: 10,
+            backgroundColor: Colors.grey[200],
+            valueColor: AlwaysStoppedAnimation<Color>(dynamicColor),
           ),
         ),
       ],
     );
   }
 }
-

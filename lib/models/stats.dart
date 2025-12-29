@@ -37,4 +37,3 @@ class Stats {
     return 'Stats(totalCalories: $totalCalories, totalDuree: $totalDuree, moyenneCaloriesHebdo: $moyenneCaloriesHebdo, moyenneDureeHebdo: $moyenneDureeHebdo, nombreSeances: $nombreSeances)';
   }
 }
-

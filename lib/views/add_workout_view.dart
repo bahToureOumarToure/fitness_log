@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/workout.dart';
 import '../providers/workout_provider.dart';
 import '../core/constants/app_constants.dart';
+import '../core/theme/app_colors.dart';
+import '../widgets/AppBarTemplate.dart';
 
 /// Formulaire d'ajout/modification workout
 class AddWorkoutView extends ConsumerStatefulWidget {
@@ -22,20 +24,20 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
   late TextEditingController _notesController;
   late DateTime _selectedDate;
 
+  String getTypeSport() => _selectedTypeSport;
+
   @override
   void initState() {
     super.initState();
     final workout = widget.workout;
-    _selectedTypeSport = workout?.typeSport ?? AppConstants.sportTypes.first;
+    _selectedTypeSport = workout?.typeSport ?? AppConstants.sportTypes.last;
     _dureeController = TextEditingController(
       text: workout?.duree.toString() ?? '',
     );
     _caloriesController = TextEditingController(
       text: workout?.caloriesBrulees.toString() ?? '',
     );
-    _notesController = TextEditingController(
-      text: workout?.notes ?? '',
-    );
+    _notesController = TextEditingController(text: workout?.notes ?? '');
     _selectedDate = workout?.date ?? DateTime.now();
   }
 
@@ -52,9 +54,10 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
     final isEditing = widget.workout != null;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isEditing ? 'Modifier la séance' : 'Ajouter une séance'),
+      appBar: AppBartemplate(
+          title: isEditing ? 'Modifier la séance' : 'Ajouter une séance'
       ),
+
       body: Form(
         key: _formKey,
         child: ListView(
@@ -70,7 +73,25 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
               items: AppConstants.sportTypes.map((type) {
                 return DropdownMenuItem<String>(
                   value: type,
-                  child: Text(type),
+
+                  child:
+                  Card(
+                    elevation: 4,
+                    child: SizedBox.square(
+                      dimension: 200,
+                      child: Row(
+                        children: [
+                          Icon(AppConstants.sportIcons.containsKey(type)
+                              ? AppConstants.sportIcons[type]
+                              : Icons.sports_baseball),
+                          Text(type)
+                        ],
+
+
+
+                      ),
+                    ),
+                  ),
                 );
               }).toList(),
               onChanged: (value) {
@@ -80,10 +101,10 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
                     // Suggérer des calories basées sur le type
                     if (_caloriesController.text.isEmpty) {
                       final defaultCalories =
-                          AppConstants.defaultCaloriesPerMinute[value] ?? 5;
+                          AppConstants.defaultCaloriesPerMinute[value] ?? 20;
                       final duree = int.tryParse(_dureeController.text) ?? 30;
-                      _caloriesController.text =
-                          (defaultCalories * duree).toString();
+                      _caloriesController.text = (defaultCalories * duree)
+                          .toString();
                     }
                   });
                 }
@@ -99,7 +120,12 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
             // Champ durée
             TextFormField(
               controller: _dureeController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
+                suffixIcon: Icon(
+                  Icons.timer,
+                  color: AppColors.getSportColor(_selectedTypeSport),
+                  size: 40,
+                ),
                 labelText: 'Durée (minutes) *',
                 border: OutlineInputBorder(),
                 helperText: 'Durée de la séance en minutes',
@@ -120,9 +146,11 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
                 final duree = int.tryParse(value);
                 if (duree != null && _caloriesController.text.isEmpty) {
                   final defaultCalories =
-                      AppConstants.defaultCaloriesPerMinute[_selectedTypeSport] ??
-                          5;
-                  _caloriesController.text = (defaultCalories * duree).toString();
+                      AppConstants
+                          .defaultCaloriesPerMinute[_selectedTypeSport] ??
+                      5;
+                  _caloriesController.text = (defaultCalories * duree)
+                      .toString();
                 }
               },
             ),
@@ -130,9 +158,14 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
             // Champ calories
             TextFormField(
               controller: _caloriesController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
+                suffixIcon: Icon(
+                  Icons.local_fire_department,
+                  color: AppColors.getSportColor(_selectedTypeSport),
+                  size: 40,
+                ),
                 labelText: 'Calories brûlées *',
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
                 helperText: 'Estimation des calories brûlées',
               ),
               keyboardType: TextInputType.number,
@@ -174,7 +207,11 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
                     Text(
                       '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
                     ),
-                    const Icon(Icons.calendar_today),
+                    Icon(
+                      Icons.calendar_today,
+                      color: AppColors.getSportColor(_selectedTypeSport),
+                      size: 30,
+                    ),
                   ],
                 ),
               ),
@@ -183,10 +220,13 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
             // Champ notes (optionnel)
             TextFormField(
               controller: _notesController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Notes (optionnel)',
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
                 helperText: 'Ajoutez des notes sur votre séance',
+                helperStyle: TextStyle(
+                  color: AppColors.getSportColor(_selectedTypeSport),
+                ),
               ),
               maxLines: 3,
             ),
@@ -238,13 +278,10 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            widget.workout != null
-                ? 'Séance modifiée'
-                : 'Séance ajoutée',
+            widget.workout != null ? 'Séance modifiée' : 'Séance ajoutée',
           ),
         ),
       );
     }
   }
 }
-

@@ -2,48 +2,56 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../models/workout.dart';
 import '../core/utils/date_utils.dart' as app_date_utils;
+import '../core/constants/app_constants.dart';
+import 'package:flutter/material.dart';
 
 /// Graphique avec fl_chart pour visualisation des statistiques
+/// Supporte les modes 'weekly' (par semaine) et 'daily' (par jour)
 class ChartWidget extends StatelessWidget {
   final List<Workout> workouts;
   final String metric; // 'calories' ou 'duration'
+  final String mode; // 'weekly' ou 'daily'
 
   const ChartWidget({
     super.key,
     required this.workouts,
     this.metric = 'calories',
+    this.mode = 'weekly',
   });
 
   @override
   Widget build(BuildContext context) {
     if (workouts.isEmpty) {
-      return const Center(
-        child: Text('Aucune donnée à afficher'),
+      return Center(
+        child: Text('Aucune donnée à afficher',
+        style: TextStyle(
+          color:  Theme.of(context).textTheme.bodyMedium!.color,
+        ),),
       );
     }
 
-    // Grouper les workouts par semaine
-    final weeklyData = _groupByWeek(workouts);
+    // Grouper les workouts selon le mode
+    final chartData = mode == 'daily' ? _groupByDay(workouts) : _groupByWeek(workouts);
 
-    if (weeklyData.isEmpty) {
+    if (chartData.isEmpty) {
       return const Center(
         child: Text('Aucune donnée à afficher'),
       );
     }
 
     return Container(
-      height: 200,
-      padding: const EdgeInsets.all(16),
+      height: 400,
+      padding: const EdgeInsets.all(0.1),
       child: LineChart(
         LineChartData(
           gridData: FlGridData(
             show: true,
-            drawVerticalLine: false,
-            horizontalInterval: _getInterval(weeklyData),
+            drawVerticalLine: true,
+            horizontalInterval: _getInterval(chartData),
             getDrawingHorizontalLine: (value) {
               return FlLine(
-                color: Theme.of(context).colorScheme.surface,
-                strokeWidth: 1,
+                color: Theme.of(context).colorScheme.error,
+                strokeWidth: 0,
               );
             },
           ),
@@ -58,17 +66,18 @@ class ChartWidget extends StatelessWidget {
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                reservedSize: 30,
+                reservedSize: 100,
                 getTitlesWidget: (value, meta) {
-                  if (value.toInt() < weeklyData.length) {
-                    final weekLabel = weeklyData[value.toInt()]['label'] as String;
+                  if (value.toInt() < chartData.length) {
+                    final label = chartData[value.toInt()]['label'] as String;
                     return Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
+                      padding: const EdgeInsets.only(top: 1.0),
                       child: Text(
-                        weekLabel,
+                        label,
                         style: TextStyle(
-                          fontSize: 10,
+                          fontSize: 8,
                           color: Theme.of(context).colorScheme.onSurface,
+                            fontWeight: FontWeight.bold
                         ),
                       ),
                     );
@@ -85,8 +94,9 @@ class ChartWidget extends StatelessWidget {
                   return Text(
                     value.toInt().toString(),
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize: 8,
                       color: Theme.of(context).colorScheme.onSurface,
+                      fontWeight: FontWeight.bold
                     ),
                   );
                 },
@@ -100,28 +110,28 @@ class ChartWidget extends StatelessWidget {
             ),
           ),
           minX: 0,
-          maxX: (weeklyData.length - 1).toDouble(),
+          maxX: (chartData.length - 1).toDouble(),
           minY: 0,
-          maxY: _getMaxValue(weeklyData) * 1.1,
+          maxY: _getMaxValue(chartData) * 1.1,
           lineBarsData: [
             LineChartBarData(
-              spots: weeklyData.asMap().entries.map((entry) {
+              spots: chartData.asMap().entries.map((entry) {
                 return FlSpot(
                   entry.key.toDouble(),
                   (entry.value['value'] as num).toDouble(),
                 );
               }).toList(),
               isCurved: true,
-              color: Theme.of(context).colorScheme.primary,
-              barWidth: 3,
+              color: Theme.of(context).colorScheme.secondary,
+              barWidth: 2,
               isStrokeCapRound: true,
-              dotData: const FlDotData(show: true),
+              dotData: const FlDotData(show: true,),
               belowBarData: BarAreaData(
                 show: true,
                 color: Theme.of(context)
                     .colorScheme
-                    .primary
-                    .withValues(alpha: 0.1),
+                    .secondary
+                    .withValues(alpha: 0.2),
               ),
             ),
           ],
@@ -171,12 +181,46 @@ class ChartWidget extends StatelessWidget {
         .reduce((a, b) => a > b ? a : b);
   }
 
-  double _getInterval(List<Map<String, dynamic>> weeklyData) {
-    final max = _getMaxValue(weeklyData);
+  double _getInterval(List<Map<String, dynamic>> chartData) {
+    final max = _getMaxValue(chartData);
     if (max <= 100) return 20;
     if (max <= 500) return 100;
     if (max <= 1000) return 200;
     return 500;
+  }
+
+  /// Groupe les workouts par jour
+  List<Map<String, dynamic>> _groupByDay(List<Workout> workouts) {
+    final Map<String, Map<String, dynamic>> dailyMap = {};
+
+    for (final workout in workouts) {
+      final dayKey = app_date_utils.DateUtils.formatDate(workout.date);
+
+      if (!dailyMap.containsKey(dayKey)) {
+        dailyMap[dayKey] = {
+          'label': '${workout.date.day}/${workout.date.month}',
+          'value': 0,
+        };
+      }
+
+      if (metric == 'calories') {
+        dailyMap[dayKey]!['value'] =
+            (dailyMap[dayKey]!['value'] as int) + workout.caloriesBrulees;
+      } else {
+        dailyMap[dayKey]!['value'] =
+            (dailyMap[dayKey]!['value'] as int) + workout.duree;
+      }
+    }
+
+    // Trier par date
+    final sortedEntries = dailyMap.entries.toList()
+      ..sort((a, b) {
+        final dateA = DateTime.parse(a.key.split('/').reversed.join('-'));
+        final dateB = DateTime.parse(b.key.split('/').reversed.join('-'));
+        return dateA.compareTo(dateB);
+      });
+
+    return sortedEntries.map((e) => e.value).toList();
   }
 }
 
