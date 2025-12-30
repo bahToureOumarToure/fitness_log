@@ -45,7 +45,8 @@ class DashboardView extends ConsumerWidget {
 
               // --- CAROUSEL DES GRAPHIQUES ---
               SizedBox(
-                height: 400,
+                height: 500,
+                width: 400,
                 // Augmenté pour laisser respirer les graphiques
                 child: PageView(
                   controller: PageController(viewportFraction: 0.92),
@@ -100,8 +101,6 @@ class DashboardView extends ConsumerWidget {
                   ],
                 ),
               ),
-
-              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -109,10 +108,9 @@ class DashboardView extends ConsumerWidget {
     );
   }
 
-  // --- WIDGET HELPER POUR LE STYLE DES CARTES DU CAROUSEL ---
   Widget _buildCarouselCard(BuildContext context, {required String title, required Widget child}) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
@@ -124,10 +122,10 @@ class DashboardView extends ConsumerWidget {
         ],
       ),
       child: Card(
-        elevation: 0,
+        elevation: 3,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

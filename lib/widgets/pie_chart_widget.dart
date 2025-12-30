@@ -20,7 +20,6 @@ class PieChartWidget extends StatelessWidget {
       return _buildEmptyState();
     }
 
-    // --- LOGIQUE DE DONNÉES (Inchangée) ---
     final dataByType = <String, double>{};
     for (final workout in workouts) {
       final value = metric == 'calories'
@@ -31,14 +30,13 @@ class PieChartWidget extends StatelessWidget {
 
     final total = dataByType.values.fold(0.0, (a, b) => a + b);
 
-    // --- CONSTRUCTION DES SECTIONS ---
     final sections = dataByType.entries.map((entry) {
       final percentage = (entry.value / total * 100);
       return PieChartSectionData(
         value: entry.value,
-        title: '${percentage.toStringAsFixed(0)}%', // Plus propre sans décimales si possible
+        title: '${percentage.toStringAsFixed(0)}%',
         color: AppColors.getSportColor(entry.key),
-        radius: 50, // Ajusté pour la fluidité
+        radius: 50,
         titleStyle: const TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.bold,
@@ -47,28 +45,27 @@ class PieChartWidget extends StatelessWidget {
       );
     }).toList();
 
-    return LayoutBuilder( // Utilisation de LayoutBuilder pour s'adapter au Container parent
+    return LayoutBuilder(
       builder: (context, constraints) {
         return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Graphique avec animation
             Expanded(
-              flex: 3,
+              flex: 6,
               child: PieChart(
                 PieChartData(
                   sections: sections,
                   sectionsSpace: 2,
-                  centerSpaceRadius: 35,
-                  borderData: FlBorderData(show: false),
+                  centerSpaceRadius: 45,
+                  borderData: FlBorderData(show: true),
                 ),
-                swapAnimationDuration: const Duration(milliseconds: 800), // Animation fluide
+                swapAnimationDuration: const Duration(milliseconds: 800),
                 swapAnimationCurve: Curves.easeInOutBack,
               ),
             ),
             const SizedBox(width: 8),
-            // Légende formatée proprement
             Expanded(
-              flex: 4,
+              flex: 2,
               child: SingleChildScrollView( // Sécurité si trop de types de sports
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,

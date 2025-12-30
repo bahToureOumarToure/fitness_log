@@ -78,6 +78,7 @@ class _MainNavigationState extends State<MainNavigation> {
           });
         },
         items: const [
+
           BottomNavigationBarItem(
             icon: Icon(Icons.query_stats),
             label: 'Dashboard',

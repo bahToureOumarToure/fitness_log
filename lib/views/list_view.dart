@@ -1,5 +1,7 @@
+import 'package:fitness_log/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/theme_provider.dart';
 import '../providers/workout_provider.dart';
 import '../widgets/workout_card.dart';
 import '../core/constants/app_constants.dart';
@@ -19,20 +21,46 @@ class _WorkoutListViewState extends ConsumerState<WorkoutListView> {
   DateTime? _selectedDateFilter;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ) {
     final workoutsAsync = ref.watch(workoutListProvider);
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = ref.watch(themeProvider) == ThemeMode.dark ? true:false;
+
 
     return Scaffold(
       appBar: AppBar(
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(
+            color: colorScheme.outlineVariant.withOpacity(0.3),
+            height: 1.0,
+          ),
+        ),
+        backgroundColor: colorScheme.surface,
+        elevation: 0,
+        scrolledUnderElevation: 2,
+        centerTitle: false,
+        title: Text(
+          'Liste des Séances',
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1.2,
+            fontSize: 15,
+            color: colorScheme.onSurface,
+          ),
+        ),
 
-        title: const Text('Liste des Séances'),
+
         actions: [
           IconButton(
-            icon: const Icon(Icons.filter_list_alt,),
+            icon: Icon(Icons.filter_list_alt,
+              color: isDark ? Colors.white : Colors.indigo,
+            ),
             onPressed: _showFilterDialog,
           ),
 
         ],
+
       ),
       body: workoutsAsync.when(
         data: (workouts) {
@@ -87,7 +115,9 @@ class _WorkoutListViewState extends ConsumerState<WorkoutListView> {
         error: (error, stack) => Center(
           child: Text('Erreur: $error'),
         ),
+
       ),
+
     );
   }
 

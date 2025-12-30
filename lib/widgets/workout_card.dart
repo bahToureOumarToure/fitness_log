@@ -43,7 +43,7 @@ class WorkoutCard extends StatelessWidget {
                 Row(
                   children: [
                  Icon(icon
-                 ,color: sportColor,size: 60,)
+                 ,color: sportColor,size: 50,)
                     ,
                     Text(
                       workout.typeSport,
@@ -134,7 +134,7 @@ mainAxisAlignment: MainAxisAlignment.spaceAround,
   Widget _buildInfoItem(BuildContext context, IconData icon, String text, Color col) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: col),
+        Icon(icon, size: 18, color: col),
         const SizedBox(width: 4),
         Text(
           text,
