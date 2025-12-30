@@ -55,7 +55,7 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
 
     return Scaffold(
       appBar: AppBartemplate(
-          title: isEditing ? 'Modifier la séance' : 'Ajouter une séance'
+        title: isEditing ? 'Modifier la séance' : 'Ajouter une séance',
       ),
 
       body: Form(
@@ -64,58 +64,94 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
           padding: const EdgeInsets.all(16),
           children: [
             // Sélecteur de type de sport
-            DropdownButtonFormField<String>(
-              initialValue: _selectedTypeSport,
-              decoration: const InputDecoration(
-                labelText: 'Type de sport *',
-                border: OutlineInputBorder(),
-              ),
-              items: AppConstants.sportTypes.map((type) {
-                return DropdownMenuItem<String>(
-                  value: type,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Type de sport *',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 12),
 
-                  child:
-                  Card(
-                    elevation: 4,
-                    child: SizedBox.square(
-                      dimension: 200,
-                      child: Row(
-                        children: [
-                          Icon(AppConstants.sportIcons.containsKey(type)
-                              ? AppConstants.sportIcons[type]
-                              : Icons.sports_baseball),
-                          Text(type)
-                        ],
+                SingleChildScrollView(
 
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: AppConstants.sportTypes.map((type) {
+                      final bool isSelected = _selectedTypeSport == type;
 
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedTypeSport = type;
 
-                      ),
-                    ),
+                            if (_caloriesController.text.isEmpty) {
+                              final defaultCalories =
+                                  AppConstants.defaultCaloriesPerMinute[type] ??
+                                  20;
+                              final duree =
+                                  int.tryParse(_dureeController.text) ?? 30;
+
+                              _caloriesController.text =
+                                  (defaultCalories * duree).toString();
+                            }
+                          });
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 2000),
+                          width: 150,
+                          height: 150,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: isSelected
+                                ? Colors.white
+                                : Colors.white60,
+                            border: Border.all(
+                              color: isSelected
+                                  ? AppColors.getSportColor(type)
+                                  : Colors.grey.shade300,
+                              width: 2,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                AppConstants.sportIcons[type] ?? Icons.sports,
+                                size: 60,
+                                color: isSelected ? AppColors.getSportColor(type) : Colors.grey,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                type,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: isSelected
+                                      ? AppColors.getSportColor(type)
+                                      :Colors.grey.shade300,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   ),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() {
-                    _selectedTypeSport = value;
-                    // Suggérer des calories basées sur le type
-                    if (_caloriesController.text.isEmpty) {
-                      final defaultCalories =
-                          AppConstants.defaultCaloriesPerMinute[value] ?? 20;
-                      final duree = int.tryParse(_dureeController.text) ?? 30;
-                      _caloriesController.text = (defaultCalories * duree)
-                          .toString();
-                    }
-                  });
-                }
-              },
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Veuillez sélectionner un type de sport';
-                }
-                return null;
-              },
+                ),
+
+
+              ],
             ),
+
             const SizedBox(height: 16),
             // Champ durée
             TextFormField(
