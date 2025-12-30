@@ -4,10 +4,9 @@ import '../core/constants/app_constants.dart';
 import '../models/workout.dart';
 import '../core/theme/app_colors.dart';
 
-/// Graphique circulaire (Pie Chart) pour la répartition des types d'activités
 class PieChartWidget extends StatelessWidget {
   final List<Workout> workouts;
-  final String metric; // 'calories' ou 'duration'
+  final String metric;
 
   const PieChartWidget({
     super.key,
@@ -18,18 +17,9 @@ class PieChartWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (workouts.isEmpty) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32.0),
-          child: Text('Aucune donnée à afficher',
-          style: TextStyle(
-            color:  AppColors.error
-          ),),
-        ),
-      );
+      return _buildEmptyState();
     }
 
-    // Grouper par type de sport
     final dataByType = <String, double>{};
     for (final workout in workouts) {
       final value = metric == 'calories'
@@ -38,102 +28,105 @@ class PieChartWidget extends StatelessWidget {
       dataByType[workout.typeSport] = (dataByType[workout.typeSport] ?? 0) + value;
     }
 
-    if (dataByType.isEmpty) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32.0),
-          child: Text('Aucune donnée à afficher'),
+    final total = dataByType.values.fold(0.0, (a, b) => a + b);
+
+    final sections = dataByType.entries.map((entry) {
+      final percentage = (entry.value / total * 100);
+      return PieChartSectionData(
+        value: entry.value,
+        title: '${percentage.toStringAsFixed(0)}%',
+        color: AppColors.getSportColor(entry.key),
+        radius: 50,
+        titleStyle: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
         ),
       );
-    }
+    }).toList();
 
-    // Créer les sections du graphique
-    final sections = <PieChartSectionData>[];
-    final total = dataByType.values.reduce((a, b) => a + b);
-
-    dataByType.forEach((type, value) {
-      final percentage = (value / total * 100);
-      sections.add(
-        PieChartSectionData(
-          value: value,
-          title: '${percentage.toStringAsFixed(1)}%',
-          color: AppColors.getSportColor(type),
-          radius: 60,
-          titleStyle: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-      );
-    });
-
-    return Container(
-      height: 250,
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          // Graphique
-          Expanded(
-            flex: 2,
-            child: PieChart(
-              PieChartData(
-                sections: sections,
-                sectionsSpace: 4,
-                centerSpaceRadius: 40,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 6,
+              child: PieChart(
+                PieChartData(
+                  sections: sections,
+                  sectionsSpace: 2,
+                  centerSpaceRadius: 45,
+                  borderData: FlBorderData(show: true),
+                ),
+                swapAnimationDuration: const Duration(milliseconds: 800),
+                swapAnimationCurve: Curves.easeInOutBack,
               ),
             ),
-          ),
-          const SizedBox(width: 16),
-          // Légende
-          Expanded(
-            flex: 1,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: dataByType.entries.map((entry) {
-                final type = entry.key;
-                final value = entry.value;
-                final percentage = (value / total * 100);
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 1),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 16,
-                        height: 50,
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 2,
+              child: SingleChildScrollView( // Sécurité si trop de types de sports
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: dataByType.entries.map((entry) {
+                    return _buildLegendItem(context, entry.key, entry.value, total);
+                  }).toList(),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-                        child: Icon(AppConstants.sportIcons[type],                          color: AppColors.getSportColor(type),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              type,
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                            Text(
-                              '${value.toStringAsFixed(0)}${metric == 'calories' ? ' kcal' : ' min'} (${percentage.toStringAsFixed(1)}%)',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context).colorScheme.secondary,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
+  // --- WIDGET HELPER : ITEM DE LÉGENDE ---
+  Widget _buildLegendItem(BuildContext context, String type, double value, double total) {
+    final percentage = (value / total * 100);
+    final color = AppColors.getSportColor(type);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Petit indicateur de couleur rond
+          Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  type,
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  '${value.toStringAsFixed(0)} ${metric == 'calories' ? 'kcal' : 'min'} (${percentage.toStringAsFixed(1)}%)',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10),
+                ),
+              ],
             ),
           ),
         ],
       ),
     );
   }
-}
 
+  Widget _buildEmptyState() {
+    return const Center(
+      child: Text(
+        'Aucune donnée cette semaine',
+        style: TextStyle(color: AppColors.error, fontSize: 13),
+      ),
+    );
+  }
+}

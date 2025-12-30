@@ -43,7 +43,7 @@ class WorkoutCard extends StatelessWidget {
                 Row(
                   children: [
                  Icon(icon
-                 ,color: sportColor,size: 60,)
+                 ,color: sportColor,size: 50,)
                     ,
                     Text(
                       workout.typeSport,
@@ -67,15 +67,15 @@ class WorkoutCard extends StatelessWidget {
               children: [
                 _buildInfoItem(
                   context,
-                  Icons.timer_outlined,
-                  '${workout.duree} min',sportColor
+                  Icons.timer_rounded,
+                  '${workout.duree} min',AppColors.primaryDark
                 )
 
                 ,
                 _buildInfoItem(
                   context,
                 Icons.local_fire_department_outlined,
-                  '${workout.caloriesBrulees} kcal', sportColor
+                  '${workout.caloriesBrulees} kcal', AppColors.accent
 
                 ),
               ],
@@ -89,22 +89,9 @@ class WorkoutCard extends StatelessWidget {
                   color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.note_outlined,
-                      size: 16,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        workout.notes!,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  workout.notes!,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
             ],
@@ -116,6 +103,7 @@ mainAxisAlignment: MainAxisAlignment.spaceAround,
 
                 if (onDuplicate != null)
                   ElevatedButton.icon(
+                    clipBehavior: Clip.antiAlias,
                     onPressed: onDuplicate,
                     icon: const Icon(Icons.copy_rounded, size: 16), label: Text(""),
                   ),
@@ -134,7 +122,6 @@ mainAxisAlignment: MainAxisAlignment.spaceAround,
                     icon: const Icon(Icons.delete, size: 20,),
                     label: const Text(''),
 
-
                   ),
               ],
             ),
@@ -147,7 +134,7 @@ mainAxisAlignment: MainAxisAlignment.spaceAround,
   Widget _buildInfoItem(BuildContext context, IconData icon, String text, Color col) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: col),
+        Icon(icon, size: 18, color: col),
         const SizedBox(width: 4),
         Text(
           text,

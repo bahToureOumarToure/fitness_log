@@ -1,3 +1,4 @@
+import 'package:fitness_log/widgets/drawer_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/workout.dart';
@@ -30,7 +31,7 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
   void initState() {
     super.initState();
     final workout = widget.workout;
-    _selectedTypeSport = workout?.typeSport ?? AppConstants.sportTypes.last;
+    _selectedTypeSport = workout?.typeSport ?? AppConstants.sportTypes.first;
     _dureeController = TextEditingController(
       text: workout?.duree.toString() ?? '',
     );
@@ -55,67 +56,104 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
 
     return Scaffold(
       appBar: AppBartemplate(
-          title: isEditing ? 'Modifier la séance' : 'Ajouter une séance'
+        title: isEditing ? 'Modifier la séance' : 'Ajouter une séance',
       ),
-
+drawer: const Drawer_page(),
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
             // Sélecteur de type de sport
-            DropdownButtonFormField<String>(
-              initialValue: _selectedTypeSport,
-              decoration: const InputDecoration(
-                labelText: 'Type de sport *',
-                border: OutlineInputBorder(),
-              ),
-              items: AppConstants.sportTypes.map((type) {
-                return DropdownMenuItem<String>(
-                  value: type,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Type de sport *',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 12),
 
-                  child:
-                  Card(
-                    elevation: 4,
-                    child: SizedBox.square(
-                      dimension: 200,
-                      child: Row(
-                        children: [
-                          Icon(AppConstants.sportIcons.containsKey(type)
-                              ? AppConstants.sportIcons[type]
-                              : Icons.sports_baseball),
-                          Text(type)
-                        ],
+                SingleChildScrollView(
 
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: AppConstants.sportTypes.map((type) {
+                      final bool isSelected = _selectedTypeSport == type;
 
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedTypeSport = type;
 
-                      ),
-                    ),
+                            if (_caloriesController.text.isEmpty) {
+                              final defaultCalories =
+                                  AppConstants.defaultCaloriesPerMinute[type] ??
+                                  20;
+                              final duree =
+                                  int.tryParse(_dureeController.text) ?? 30;
+
+                              _caloriesController.text =
+                                  (defaultCalories * duree).toString();
+                            }
+                          });
+                        },
+                        child: AnimatedContainer(
+                          margin: const EdgeInsets.symmetric(horizontal: 8),
+                          curve: Curves.easeInOut,
+                          duration: const Duration(milliseconds: 2000),
+                          width: 150,
+                          height: 150,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: isSelected
+                                ? Colors.white
+                                : Colors.white60,
+                            border: Border.all(
+                              color: isSelected
+                                  ? AppColors.getSportColor(type)
+                                  : Colors.grey.shade300,
+                              width: 2,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 1,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                AppConstants.sportIcons[type] ?? Icons.sports,
+                                size: 60,
+                                color: isSelected ? AppColors.getSportColor(type) : Colors.grey,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                type,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: isSelected
+                                      ? AppColors.getSportColor(type)
+                                      :Colors.grey.shade300,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   ),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() {
-                    _selectedTypeSport = value;
-                    // Suggérer des calories basées sur le type
-                    if (_caloriesController.text.isEmpty) {
-                      final defaultCalories =
-                          AppConstants.defaultCaloriesPerMinute[value] ?? 20;
-                      final duree = int.tryParse(_dureeController.text) ?? 30;
-                      _caloriesController.text = (defaultCalories * duree)
-                          .toString();
-                    }
-                  });
-                }
-              },
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Veuillez sélectionner un type de sport';
-                }
-                return null;
-              },
+                ),
+
+              ],
             ),
+
             const SizedBox(height: 16),
             // Champ durée
             TextFormField(
@@ -123,12 +161,16 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
               decoration: InputDecoration(
                 suffixIcon: Icon(
                   Icons.timer,
-                  color: AppColors.getSportColor(_selectedTypeSport),
-                  size: 40,
+                  color: AppColors.primary,
+                  size: 30,
                 ),
                 labelText: 'Durée (minutes) *',
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+
                 helperText: 'Durée de la séance en minutes',
+
               ),
               keyboardType: TextInputType.number,
               validator: (value) {
@@ -161,11 +203,14 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
               decoration: InputDecoration(
                 suffixIcon: Icon(
                   Icons.local_fire_department,
-                  color: AppColors.getSportColor(_selectedTypeSport),
-                  size: 40,
+                  color: AppColors.primary,
+                  size: 30,
                 ),
                 labelText: 'Calories brûlées *',
-                border: const OutlineInputBorder(),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                ),
+
                 helperText: 'Estimation des calories brûlées',
               ),
               keyboardType: TextInputType.number,
@@ -197,9 +242,13 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
                 }
               },
               child: InputDecorator(
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Date *',
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+
+                  ),
+
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -208,9 +257,9 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
                       '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
                     ),
                     Icon(
-                      Icons.calendar_today,
-                      color: AppColors.getSportColor(_selectedTypeSport),
-                      size: 30,
+                      Icons.calendar_month_outlined,
+                      color: AppColors.primary,
+                      size: 25,
                     ),
                   ],
                 ),
@@ -221,12 +270,10 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
             TextFormField(
               controller: _notesController,
               decoration: InputDecoration(
-                labelText: 'Notes (optionnel)',
+                labelText: 'Notes',
                 border: const OutlineInputBorder(),
                 helperText: 'Ajoutez des notes sur votre séance',
-                helperStyle: TextStyle(
-                  color: AppColors.getSportColor(_selectedTypeSport),
-                ),
+
               ),
               maxLines: 3,
             ),

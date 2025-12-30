@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 /// Palette de couleurs cohérente adaptée au sport
 class AppColors {
   // Couleurs principales
-  static const Color primary = Color(0xFF2196F3); // Bleu
-  static const Color primaryDark = Color(0xFF1976D2);
-  static const Color primaryLight = Color(0xFF64B5F6);
+  static const Color primary = Color(0xFF4420B9); // Bleu
+  static const Color primaryDark = Color(0xFF475293);
+  static const Color primaryLight = Color(0xFF38427A);
 
   // Couleurs secondaires
-  static const Color secondary = Color(0xFF4CAF50); // Vert
+  static const Color secondary = Color(0x5C6BC0FF); // Vert
   static const Color secondaryDark = Color(0xFF388E3C);
   static const Color secondaryLight = Color(0xFF81C784);
 
@@ -18,11 +18,11 @@ class AppColors {
   static const Color accentLight = Color(0xFFFFB74D);
 
   // Couleurs par type de sport
-  static const Color cardioColor = Color(0xFFE91E63); // Rose/Rouge
-  static const Color musculationColor = Color(0xFF9C27B0); // Violet
+  static const Color cardioColor = Color(0xFFE91E1E); // Rose/Rouge
+  static const Color musculationColor = Color(0xFF042D4B); // Violet
   static const Color marcheColor = Color(0xFF4CAF50); // Vert
-  static const Color courseColor = Color(0xFFF44336); // Rouge
-  static const Color yogaColor = Color(0xFF00BCD4); // Cyan
+  static const Color courseColor = Color(0xFF000000); // Rouge
+  static const Color yogaColor = Color(0xFF00CDD4); // Cyan
 
   // Couleurs de statut
   static const Color success = Color(0xFF4CAF50);

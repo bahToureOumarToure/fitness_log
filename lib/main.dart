@@ -1,3 +1,5 @@
+
+import 'package:fitness_log/core/theme/app_colors.dart';
 import 'package:fitness_log/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,9 +21,11 @@ void main() {
 class FitnessLogApp extends ConsumerWidget  {
   const FitnessLogApp({super.key});
 
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeProvider);
+
     return MaterialApp(
       title: 'Fitness Log',
       theme: AppTheme.lightTheme,
@@ -59,10 +63,14 @@ class _MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
 
       body: _views[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
+        unselectedItemColor: Colors.grey,
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
@@ -70,53 +78,28 @@ class _MainNavigationState extends State<MainNavigation> {
           });
         },
         items: const [
+
           BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
+            icon: Icon(Icons.query_stats),
             label: 'Dashboard',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.list),
+            icon: Icon(Icons.view_list_rounded),
             label: 'Liste',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: Icon(Icons.home_sharp),
             label: 'Accueil',
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, '/add-workout');
-        },
-        child: const Icon(Icons.add),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.pushNamed(context, '/add-workout'),
+        label: const Text("SÉANCE"),
+        icon: Icon(Icons.add,color: isDark ?  AppColors.primary: Colors.white),
+        backgroundColor: isDark ? Colors.white : AppColors.primary,
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text(
-                'Fitness Log',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.dashboard),
-              title: const Text('Dashboard'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, '/dashboard');
-              },
-            ),
-          ],
-        ),
-      ),
+
     );
   }
 }

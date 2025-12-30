@@ -1,3 +1,4 @@
+import 'package:fitness_log/widgets/drawer_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/workout_provider.dart';
@@ -16,7 +17,9 @@ class HomeView extends ConsumerWidget {
     final statsAsync = ref.watch(workoutStatsProvider);
 
     return Scaffold(
-      appBar: AppBartemplate(title: 'Fitness Log',),
+      appBar: AppBartemplate(title: 'Fitness Log',
+      ),
+      drawer: const Drawer_page(),
       body: RefreshIndicator(
         onRefresh: () async {
           ref.invalidate(workoutListProvider);
@@ -112,7 +115,7 @@ class HomeView extends ConsumerWidget {
                     const SizedBox(height: 16),
                     workoutsAsync.when(
                       data: (workouts) {
-                        final recentWorkouts = workouts.take(2).toList();
+                        final recentWorkouts = workouts.take(1).toList();
                         if (recentWorkouts.isEmpty) {
                           return const Center(
                             child: Padding(
