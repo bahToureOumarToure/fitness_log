@@ -1,4 +1,5 @@
 import 'package:fitness_log/widgets/AppBarTemplate.dart';
+import 'package:fitness_log/widgets/drawer_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/workout_provider.dart';
@@ -18,6 +19,7 @@ class DashboardView extends ConsumerWidget {
     final weeklyStatsAsync = ref.watch(workoutWeeklyStatsProvider(now));
 
     return Scaffold(
+      drawer: Drawer_page(),
       appBar: AppBartemplate(title: 'Dashoard'),
       body: RefreshIndicator(
 
