@@ -18,9 +18,7 @@ class DashboardView extends ConsumerWidget {
     final weeklyStatsAsync = ref.watch(workoutWeeklyStatsProvider(now));
 
     return Scaffold(
-      appBar: AppBar(
-        title: AppBartemplate(title: 'Dashoard'),
-      ),
+      appBar: AppBartemplate(title: 'Dashoard'),
       body: RefreshIndicator(
 
         onRefresh: () async {

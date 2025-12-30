@@ -1,3 +1,4 @@
+import 'package:fitness_log/widgets/drawer_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/workout.dart';
@@ -30,7 +31,7 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
   void initState() {
     super.initState();
     final workout = widget.workout;
-    _selectedTypeSport = workout?.typeSport ?? AppConstants.sportTypes.last;
+    _selectedTypeSport = workout?.typeSport ?? AppConstants.sportTypes.first;
     _dureeController = TextEditingController(
       text: workout?.duree.toString() ?? '',
     );
@@ -57,7 +58,7 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
       appBar: AppBartemplate(
         title: isEditing ? 'Modifier la séance' : 'Ajouter une séance',
       ),
-
+drawer: const Drawer_page(),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -99,6 +100,8 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
                           });
                         },
                         child: AnimatedContainer(
+                          margin: const EdgeInsets.symmetric(horizontal: 8),
+                          curve: Curves.easeInOut,
                           duration: const Duration(milliseconds: 2000),
                           width: 150,
                           height: 150,
@@ -115,9 +118,9 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
-                                blurRadius: 8,
-                                offset: const Offset(0, 4),
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 1,
+                                offset: const Offset(0, 1),
                               ),
                             ],
                           ),
@@ -148,7 +151,6 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
                   ),
                 ),
 
-
               ],
             ),
 
@@ -159,12 +161,16 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
               decoration: InputDecoration(
                 suffixIcon: Icon(
                   Icons.timer,
-                  color: AppColors.getSportColor(_selectedTypeSport),
-                  size: 40,
+                  color: AppColors.primary,
+                  size: 30,
                 ),
                 labelText: 'Durée (minutes) *',
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+
                 helperText: 'Durée de la séance en minutes',
+
               ),
               keyboardType: TextInputType.number,
               validator: (value) {
@@ -197,11 +203,14 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
               decoration: InputDecoration(
                 suffixIcon: Icon(
                   Icons.local_fire_department,
-                  color: AppColors.getSportColor(_selectedTypeSport),
-                  size: 40,
+                  color: AppColors.primary,
+                  size: 30,
                 ),
                 labelText: 'Calories brûlées *',
-                border: const OutlineInputBorder(),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                ),
+
                 helperText: 'Estimation des calories brûlées',
               ),
               keyboardType: TextInputType.number,
@@ -233,9 +242,13 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
                 }
               },
               child: InputDecorator(
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Date *',
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+
+                  ),
+
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -244,9 +257,9 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
                       '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
                     ),
                     Icon(
-                      Icons.calendar_today,
-                      color: AppColors.getSportColor(_selectedTypeSport),
-                      size: 30,
+                      Icons.calendar_month_outlined,
+                      color: AppColors.primary,
+                      size: 25,
                     ),
                   ],
                 ),
@@ -257,12 +270,10 @@ class _AddWorkoutViewState extends ConsumerState<AddWorkoutView> {
             TextFormField(
               controller: _notesController,
               decoration: InputDecoration(
-                labelText: 'Notes (optionnel)',
+                labelText: 'Notes',
                 border: const OutlineInputBorder(),
                 helperText: 'Ajoutez des notes sur votre séance',
-                helperStyle: TextStyle(
-                  color: AppColors.getSportColor(_selectedTypeSport),
-                ),
+
               ),
               maxLines: 3,
             ),
